@@ -345,3 +345,195 @@ The request body should be in JSON format and include the following fields:
 - Ensure that the `email` field is unique.
 - Passwords are hashed before being stored in the database.
 - The authentication token expires in 24 hours.
+
+---
+
+## Endpoint: `/captains/login`
+
+### Description
+This endpoint is used to authenticate a captain. It validates the input data, checks the captain's credentials, and returns an authentication token upon successful login.
+
+### Method
+`POST`
+
+### Request Body
+The request body should be in JSON format and include the following fields:
+
+```json
+{
+  "email": "string (valid email format, required)",
+  "password": "string (required)"
+}
+```
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "captain": {
+    "_id": "string",
+    "fullname": {
+      "firstname": "string",
+      "lastname": "string"
+    },
+    "email": "string",
+    "vehicle": {
+      "color": "string",
+      "plate": "string",
+      "capacity": "number",
+      "vehicleType": "string"
+    },
+    "status": "string",
+    "location": {
+      "lat": "number",
+      "lng": "number"
+    }
+  },
+  "token": "string"
+}
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Validation errors in the input data or invalid credentials.
+  - **Body:**
+
+```json
+{
+  "error": "Invalid email or password"
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "message": "An error occurred"
+}
+```
+
+### Notes
+- Ensure the `email` exists in the database.
+- Passwords are compared securely using bcrypt.
+- The authentication token expires in 24 hours.
+
+---
+
+## Endpoint: `/captains/profile`
+
+### Description
+This endpoint is used to retrieve the profile of the authenticated captain. It requires the captain to be logged in and provides the captain's details.
+
+### Method
+`GET`
+
+### Headers
+- **Authorization:** `Bearer <token>` (required if token is not in cookies)
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "captain": {
+    "_id": "string",
+    "fullname": {
+      "firstname": "string",
+      "lastname": "string"
+    },
+    "email": "string",
+    "vehicle": {
+      "color": "string",
+      "plate": "string",
+      "capacity": "number",
+      "vehicleType": "string"
+    },
+    "status": "string",
+    "location": {
+      "lat": "number",
+      "lng": "number"
+    }
+  }
+}
+```
+
+#### Error Responses
+- **Status Code:** `401 Unauthorized`
+  - **Reason:** Missing or invalid token.
+  - **Body:**
+
+```json
+{
+  "message": "Invalid token."
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "message": "An error occurred"
+}
+```
+
+### Notes
+- The token can be provided in the `Authorization` header or as a cookie.
+- Ensure the token is valid and not blacklisted.
+
+---
+
+## Endpoint: `/captains/logout`
+
+### Description
+This endpoint is used to log out the authenticated captain. It clears the authentication token from cookies and blacklists the token to prevent further use.
+
+### Method
+`GET`
+
+### Headers
+- **Authorization:** `Bearer <token>` (required if token is not in cookies)
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+#### Error Responses
+- **Status Code:** `401 Unauthorized`
+  - **Reason:** Missing or invalid token.
+  - **Body:**
+
+```json
+{
+  "message": "Invalid token."
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "message": "An error occurred"
+}
+```
+
+### Notes
+- The token is blacklisted to prevent reuse.
+- The token can be provided in the `Authorization` header or as a cookie.
