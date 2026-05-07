@@ -255,3 +255,93 @@ This endpoint is used to log out the authenticated user. It clears the authentic
 ### Notes
 - The token is blacklisted to prevent reuse.
 - The token can be provided in the `Authorization` header or as a cookie.
+
+## Endpoint: `/captains/register`
+
+### Description
+This endpoint is used to register a new captain. It validates the input data, hashes the password, and creates a new captain in the database. Upon successful registration, it returns the captain's details along with an authentication token.
+
+### Method
+`POST`
+
+### Request Body
+The request body should be in JSON format and include the following fields:
+
+```json
+{
+  "fullname": {
+    "firstname": "string (min: 3, required)",
+    "lastname": "string (min: 3, required)"
+  },
+  "email": "string (valid email format, required)",
+  "password": "string (min: 6 characters, required)",
+  "vehicle": {
+    "color": "string (min: 3, required)",
+    "plate": "string (min: 3, required)",
+    "capacity": "number (min: 1, required)",
+    "vehicleType": "string (one of: car, bike, auto, required)"
+  }
+}
+```
+
+### Response
+#### Success Response
+- **Status Code:** `201 Created`
+- **Body:**
+
+```json
+{
+  "captain": {
+    "_id": "string",
+    "fullname": {
+      "firstname": "string",
+      "lastname": "string"
+    },
+    "email": "string",
+    "vehicle": {
+      "color": "string",
+      "plate": "string",
+      "capacity": "number",
+      "vehicleType": "string"
+    },
+    "status": "string",
+    "location": {
+      "lat": "number",
+      "lng": "number"
+    }
+  },
+  "token": "string"
+}
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Validation errors in the input data or captain already exists.
+  - **Body:**
+
+```json
+{
+  "errors": [
+    {
+      "msg": "string",
+      "param": "string",
+      "location": "string"
+    }
+  ]
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "message": "An error occurred"
+}
+```
+
+### Notes
+- Ensure that the `email` field is unique.
+- Passwords are hashed before being stored in the database.
+- The authentication token expires in 24 hours.
