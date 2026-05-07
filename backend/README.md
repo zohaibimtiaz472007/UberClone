@@ -153,3 +153,105 @@ The request body should be in JSON format and include the following fields:
 - Ensure the `email` exists in the database.
 - Passwords are compared securely using bcrypt.
 - The authentication token expires in 1 hour.
+
+## Endpoint: `/users/profile`
+
+### Description
+This endpoint is used to retrieve the profile of the authenticated user. It requires the user to be logged in and provides the user's details.
+
+### Method
+`GET`
+
+### Headers
+- **Authorization:** `Bearer <token>` (required if token is not in cookies)
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "_id": "string",
+  "fullname": {
+    "firstName": "string",
+    "lastname": "string"
+  },
+  "email": "string",
+  "socketId": "string"
+}
+```
+
+#### Error Responses
+- **Status Code:** `401 Unauthorized`
+  - **Reason:** Missing or invalid token.
+  - **Body:**
+
+```json
+{
+  "message": "Invalid token."
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "message": "An error occurred"
+}
+```
+
+### Notes
+- The token can be provided in the `Authorization` header or as a cookie.
+- Ensure the token is valid and not blacklisted.
+
+---
+
+## Endpoint: `/users/logout`
+
+### Description
+This endpoint is used to log out the authenticated user. It clears the authentication token from cookies and blacklists the token to prevent further use.
+
+### Method
+`GET`
+
+### Headers
+- **Authorization:** `Bearer <token>` (required if token is not in cookies)
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+#### Error Responses
+- **Status Code:** `401 Unauthorized`
+  - **Reason:** Missing or invalid token.
+  - **Body:**
+
+```json
+{
+  "message": "Invalid token."
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "message": "An error occurred"
+}
+```
+
+### Notes
+- The token is blacklisted to prevent reuse.
+- The token can be provided in the `Authorization` header or as a cookie.
