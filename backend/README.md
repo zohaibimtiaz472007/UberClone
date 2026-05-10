@@ -537,3 +537,189 @@ This endpoint is used to log out the authenticated captain. It clears the authen
 ### Notes
 - The token is blacklisted to prevent reuse.
 - The token can be provided in the `Authorization` header or as a cookie.
+
+---
+
+## Endpoint: `/maps/search`
+
+### Description
+This endpoint is used to search for a location based on user input. It returns the most relevant location details.
+
+### Method
+`GET`
+
+### Query Parameters
+- `input`: `string` (required) - The search query for the location.
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+[
+  {
+    "place_id": "string",
+    "display_name": "string",
+    "lat": "string",
+    "lon": "string"
+  }
+]
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Missing input query parameter.
+  - **Body:**
+
+```json
+{
+  "message": "Input is required"
+}
+```
+
+---
+
+## Endpoint: `/maps/distance-time`
+
+### Description
+This endpoint calculates the distance and estimated travel time between two locations.
+
+### Method
+`POST`
+
+### Request Body
+The request body should be in JSON format and include the following fields:
+
+```json
+{
+  "origin": "string (required)",
+  "destination": "string (required)"
+}
+```
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "origin": "string",
+  "destination": "string",
+  "distanceInKm": "number",
+  "durationInMinutes": "number"
+}
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Missing origin or destination.
+  - **Body:**
+
+```json
+{
+  "message": "Origin and destination required"
+}
+```
+
+---
+
+## Endpoint: `/maps/suggestions`
+
+### Description
+This endpoint provides location suggestions based on a query, focusing on Pakistan and the Khyber Pakhtunkhwa region.
+
+### Method
+`GET`
+
+### Query Parameters
+- `query`: `string` (required) - The search query for location suggestions.
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+[
+  {
+    "name": "string",
+    "lat": "string",
+    "lng": "string"
+  }
+]
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Missing query parameter.
+  - **Body:**
+
+```json
+{
+  "message": "Query is required"
+}
+```
+
+---
+
+## Endpoint: `/maps/route`
+
+### Description
+This endpoint retrieves the route details between two locations.
+
+### Method
+`POST`
+
+### Request Body
+The request body should be in JSON format and include the following fields:
+
+```json
+{
+  "origin": {
+    "lat": "number",
+    "lng": "number"
+  },
+  "destination": {
+    "lat": "number",
+    "lng": "number"
+  }
+}
+```
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            "number",
+            "number"
+          ]
+        ]
+      }
+    }
+  ]
+}
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Missing or invalid origin/destination.
+  - **Body:**
+
+```json
+{
+  "message": "Invalid origin or destination"
+}
+```
