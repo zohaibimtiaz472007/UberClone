@@ -63,7 +63,7 @@ const UserSignup = () => {
         password: ''
       })
 
-      navigate('/')
+      navigate('/user-dashboard')
     }
 
   } catch (err) {

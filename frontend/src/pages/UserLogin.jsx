@@ -49,7 +49,7 @@ const UserLogin = () => {
           password: "",
         });
 
-        navigate("/");
+        navigate("/user-dashboard");
       }
     } catch (err) {
       console.log(err);

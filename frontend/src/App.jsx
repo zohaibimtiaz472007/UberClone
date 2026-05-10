@@ -10,6 +10,8 @@ import UserProtectedWrapper from './pages/UserProtectedWrapper'
 import Dashboard from './pages/Dashboard'
 import CaptainDashboard from './pages/CaptainDashboard'
 import CaptainProtectedWrapper from './pages/CaptainProtectedWrapper'
+import UserDashboard from './pages/UserDashboard'
+import Ride from './pages/Ride'
 
 const App = () => {
   return (
@@ -35,7 +37,18 @@ const App = () => {
             <CaptainDashboard />
           </CaptainProtectedWrapper>
         }/>
+        <Route path='/user-dashboard' element = {
+          <UserProtectedWrapper>
+            <UserDashboard />
+          </UserProtectedWrapper>
+        }/>
+        <Route path='/ride' element = {
+          <UserProtectedWrapper>
+            <Ride />
+          </UserProtectedWrapper>
+        }/>
       </Routes>
+
     </div>
   )
 }
