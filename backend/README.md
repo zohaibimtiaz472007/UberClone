@@ -723,3 +723,247 @@ The request body should be in JSON format and include the following fields:
   "message": "Invalid origin or destination"
 }
 ```
+
+---
+
+## Endpoint: `/rides/create`
+
+### Description
+This endpoint is used to create a new ride. It calculates the fare based on the origin and destination, and stores the ride details in the database.
+
+### Method
+`POST`
+
+### Headers
+- **Authorization:** `Bearer <token>` (required)
+
+### Request Body
+The request body should be in JSON format and include the following fields:
+
+```json
+{
+  "origin": "string (required)",
+  "destination": "string (required)"
+}
+```
+
+### Response
+#### Success Response
+- **Status Code:** `201 Created`
+- **Body:**
+
+```json
+{
+  "success": true,
+  "message": "Ride created successfully",
+  "data": {
+    "_id": "string",
+    "user": "string",
+    "origin": "string",
+    "destination": "string",
+    "fare": "number",
+    "status": "string",
+    "distance": "number",
+    "duration": "number"
+  }
+}
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Missing required fields.
+  - **Body:**
+
+```json
+{
+  "success": false,
+  "message": "Origin and destination required"
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "success": false,
+  "message": "An error occurred"
+}
+```
+
+---
+
+## Endpoint: `/rides/fare`
+
+### Description
+This endpoint calculates the fare for a ride based on the origin and destination.
+
+### Method
+`GET`
+
+### Query Parameters
+- **origin**: `string (required)`
+- **destination**: `string (required)`
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "fare": "number",
+    "distance": "number",
+    "duration": "number"
+  }
+}
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Missing required query parameters.
+  - **Body:**
+
+```json
+{
+  "success": false,
+  "message": "Origin and destination required"
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "success": false,
+  "message": "An error occurred"
+}
+```
+
+---
+
+## Endpoint: `/rides/:rideId`
+
+### Description
+This endpoint retrieves the details of a specific ride by its ID.
+
+### Method
+`GET`
+
+### Headers
+- **Authorization:** `Bearer <token>` (required)
+
+### Path Parameters
+- **rideId**: `string (required)`
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "string",
+    "user": "string",
+    "captain": "string",
+    "origin": "string",
+    "destination": "string",
+    "fare": "number",
+    "status": "string",
+    "distance": "number",
+    "duration": "number"
+  }
+}
+```
+
+#### Error Responses
+- **Status Code:** `404 Not Found`
+  - **Reason:** Ride not found.
+  - **Body:**
+
+```json
+{
+  "success": false,
+  "message": "Ride not found"
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "success": false,
+  "message": "An error occurred"
+}
+```
+
+---
+
+## Endpoint: `/rides/:rideId/status`
+
+### Description
+This endpoint updates the status of a specific ride.
+
+### Method
+`PUT`
+
+### Headers
+- **Authorization:** `Bearer <token>` (required)
+
+### Request Body
+The request body should be in JSON format and include the following fields:
+
+```json
+{
+  "rideId": "string (required)",
+  "status": "string (required, one of: pending, accepted, ongoing, completed, cancelled)"
+}
+```
+
+### Response
+#### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+
+```json
+{
+  "success": true,
+  "message": "Ride status updated",
+  "data": {
+    "_id": "string",
+    "status": "string"
+  }
+}
+```
+
+#### Error Responses
+- **Status Code:** `400 Bad Request`
+  - **Reason:** Invalid status or missing fields.
+  - **Body:**
+
+```json
+{
+  "success": false,
+  "message": "Ride ID and status required"
+}
+```
+
+- **Status Code:** `500 Internal Server Error`
+  - **Reason:** Unexpected server error.
+  - **Body:**
+
+```json
+{
+  "success": false,
+  "message": "An error occurred"
+}
+```
