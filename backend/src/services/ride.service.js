@@ -1,102 +1,69 @@
 const Ride = require('../models/ride.model')
 const mapsService = require('./maps.service')
+const crypto = require('crypto')
+
+function getOtp(num) {
+  return crypto.randomInt(
+    Math.pow(10, num - 1),
+    Math.pow(10, num)
+  ).toString();
+}
+
 
 // FARE CALCULATION LOGIC
 
-module.exports.calculateFare = async (
-  origin,
-  destination
-) => {
 
+module.exports.calculateFare = async (origin, destination) => {
   if (!origin || !destination) {
-    throw new Error(
-      'Origin and destination required'
-    )
+    throw new Error("Origin and destination required");
   }
 
-  // DISTANCE + TIME
-  const rideData =
-    await mapsService.getDistanceTime(
-      origin,
-      destination
-    )
+  const rideData = await mapsService.getDistanceTime(origin, destination);
 
   if (!rideData) {
-    throw new Error(
-      'Unable to calculate distance'
-    )
+    throw new Error("Unable to calculate distance");
   }
 
-  const distance =
-    Number(rideData.distanceInKm)
+  const distance = Number(rideData.distanceInKm);
+  const duration = Number(rideData.durationInMinutes);
 
-  const duration =
-    Number(rideData.durationInMinutes)
+  const fares = {
+    auto: Math.round(40 + distance * 12 + duration * 2),
+    bike: Math.round(20 + distance * 8 + duration * 1.5),
+    car: Math.round(80 + distance * 20 + duration * 3),
+  };
 
- // UBER LIKE PRICING LOGIC
-
-  const baseFare = 100
-
-  const perKmRate = 25
-
-  const perMinuteRate = 3
-
-  const fare = Math.round(
-    baseFare +
-    (distance * perKmRate) +
-    (duration * perMinuteRate)
-  )
-
-  return {
-
-    fare,
-
-    distance,
-
-    duration
-  }
-}
+  return { distance, duration, fares };
+};
 
 // CREATE RIDE
 
 module.exports.createRide = async ({
   user,
   origin,
-  destination
+  destination,
+  vehicleType
 }) => {
-
-  if (!user || !origin || !destination) {
-
-    throw new Error(
-      'All fields are required'
-    )
+  if (!user || !origin || !destination || !vehicleType) {
+    throw new Error("Enter all the fields");
   }
 
-  // CALCULATE FARE
-  const fareData =
-    await module.exports.calculateFare(
-      origin,
-      destination
-    )
+  const fareData = await module.exports.calculateFare(origin, destination);
 
-  // CREATE RIDE
   const ride = await Ride.create({
-
     user,
-
     origin,
-
     destination,
-
-    fare: fareData.fare,
-
+    vehicleType,
+    fare: fareData.fares[vehicleType], // ✅ FIXED
     distance: fareData.distance,
+    duration: fareData.duration,
+    otp: getOtp(6) // Generate and store OTP for the ride
+    
+  });
 
-    duration: fareData.duration
-  })
-
-  return ride
-}
+  return ride;
+};
 
 // GET SINGLE RIDE
 
@@ -111,33 +78,24 @@ module.exports.getRideById = async (
 
 // UPDATE RIDE STATUS
 
-module.exports.updateRideStatus = async (
-  rideId,
-  status
-) => {
-
+module.exports.updateRideStatus = async (rideId, status) => {
   const validStatuses = [
-    'pending',
-    'accepted',
-    'ongoing',
-    'completed',
-    'cancelled'
-  ]
+    "pending",
+    "accepted",
+    "ongoing",
+    "completed",
+    "cancelled",
+  ];
 
   if (!validStatuses.includes(status)) {
-
-    throw new Error('Invalid status')
+    throw new Error("Invalid status");
   }
 
   const ride = await Ride.findByIdAndUpdate(
-
     rideId,
-
     { status },
-
     { new: true }
+  );
 
-  )
-
-  return ride
-}
+  return ride;
+};

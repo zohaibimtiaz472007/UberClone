@@ -1,34 +1,35 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useContext } from "react";
 
-export const CaptainDataContext = createContext();
+export const CaptainDataContext = createContext(null);
 
-export const CaptainContext = ({ children }) => {
+export const CaptainProvider = ({ children }) => {
   const [captain, setCaptain] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const value = {
-    captain,
-    setCaptain,
-    isLoading,
-    setIsLoading,
-    error,
-    setError,
-  };
-
   return (
-    <CaptainDataContext.Provider value={value}>
+    <CaptainDataContext.Provider
+      value={{
+        captain,
+        setCaptain,
+        loading,
+        setLoading,
+        error,
+        setError,
+      }}
+    >
       {children}
     </CaptainDataContext.Provider>
   );
 };
 
+// safe hook
 export const useCaptain = () => {
-  const context = React.useContext(CaptainDataContext);
+  const context = useContext(CaptainDataContext);
   if (!context) {
-    throw new Error('useCaptain must be used within CaptainProvider');
+    throw new Error("CaptainProvider is missing in the tree");
   }
   return context;
 };
 
-export default CaptainContext;
+export default CaptainProvider;

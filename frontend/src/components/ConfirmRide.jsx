@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 
-// Confirm Ride Component
 const ConfirmRide = ({ 
   isOpen, 
   onClose, 
@@ -8,23 +7,72 @@ const ConfirmRide = ({
   pickupLocation, 
   destinationLocation, 
   selectedVehicle,
-  estimatedDistance,
-  estimatedTime
+  distance,
+  duration,
+  fare
 }) => {
   const [paymentMethod, setPaymentMethod] = useState('cash')
   const [isConfirming, setIsConfirming] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
 
-  // Calculate fare details
-  const baseFare = selectedVehicle?.price || 0
-  const tax = Math.floor(baseFare * 0.08)
-  const platformFee = 2
-  const totalFare = baseFare + tax + platformFee
+  // Vehicle details mapping based on backend data
+  const getVehicleDetails = (vehicleId) => {
+    const vehicles = {
+      bike: {
+        name: 'Bike',
+        icon: '🏍️',
+        capacity: '1 person',
+        luggage: 'No luggage',
+        features: ['Fast', 'Economical', 'Easy parking']
+      },
+      auto: {
+        name: 'Auto',
+        icon: '🛺',
+        capacity: '3 persons',
+        luggage: 'Small bags',
+        features: ['Best for short trips', 'Local favorite', 'Affordable']
+      },
+      car: {
+        name: 'Car',
+        icon: '🚗',
+        capacity: '4 persons',
+        luggage: '2 bags',
+        features: ['AC', 'Comfortable', 'Privacy']
+      }
+    }
+    return vehicles[vehicleId] || vehicles.car
+  }
+
+  const vehicleDetails = getVehicleDetails(selectedVehicle)
+  const totalFare = fare || 0
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  const formatDistance = (dist) => {
+    if (!dist) return 'N/A'
+    return `${dist.toFixed(1)} km`
+  }
+
+  const formatDuration = (dur) => {
+    if (!dur) return 'N/A'
+    const minutes = Math.round(dur)
+    if (minutes < 60) return `${minutes} min`
+    const hours = Math.floor(minutes / 60)
+    const remainingMinutes = minutes % 60
+    return `${hours}h ${remainingMinutes}m`
+  }
 
   const paymentMethods = [
     { id: 'cash', name: 'Cash', icon: '💵', description: 'Pay with cash directly to driver' },
-    { id: 'card', name: 'Credit/Debit Card', icon: '💳', description: '**** **** **** 4242' },
-    { id: 'upi', name: 'UPI / Digital Wallet', icon: '📱', description: 'Google Pay, PhonePe, Paytm' }
+    { id: 'card', name: 'Credit/Debit Card', icon: '💳', description: 'Secure online payment' },
+    { id: 'upi', name: 'UPI', icon: '📱', description: 'Google Pay, PhonePe, Paytm' }
   ]
 
   useEffect(() => {
@@ -38,25 +86,26 @@ const ConfirmRide = ({
     }
   }, [isOpen])
 
-  const handleConfirmRide = () => {
+  const handleConfirmRide = async () => {
     setIsConfirming(true)
-    // Simulate API call
-    setTimeout(() => {
-      setIsConfirming(false)
+    
+    try {
+      await onConfirm({
+        paymentMethod,
+        bookingId: Math.floor(Math.random() * 1000000)
+      })
+      
       setShowSuccess(true)
       setTimeout(() => {
         setShowSuccess(false)
-        onConfirm({
-          pickupLocation,
-          destinationLocation,
-          vehicle: selectedVehicle,
-          paymentMethod,
-          totalFare,
-          bookingId: Math.floor(Math.random() * 1000000)
-        })
         onClose()
       }, 2000)
-    }, 2000)
+    } catch (error) {
+      console.error('Error confirming ride:', error)
+      alert('Failed to confirm ride. Please try again.')
+    } finally {
+      setIsConfirming(false)
+    }
   }
 
   if (!isOpen) return null
@@ -79,7 +128,7 @@ const ConfirmRide = ({
               </svg>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Ride Confirmed!</h3>
-            <p className="text-gray-500">Your driver is on the way</p>
+            <p className="text-gray-500">Finding a driver for you...</p>
           </div>
         </div>
       )}
@@ -117,25 +166,24 @@ const ConfirmRide = ({
             <div className="p-6 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
               <div className="flex items-center gap-4">
                 <div className="text-6xl animate-float">
-                  {selectedVehicle?.icon}
+                  {vehicleDetails.icon}
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-xl font-bold text-gray-900">{selectedVehicle?.name}</h4>
+                  <h4 className="text-xl font-bold text-gray-900">{vehicleDetails.name}</h4>
                   <div className="flex gap-3 mt-1 text-sm text-gray-600">
-                    <span className="flex items-center gap-1">👥 {selectedVehicle?.capacity}</span>
-                    <span className="flex items-center gap-1">🧳 {selectedVehicle?.luggage}</span>
-                    <span className="flex items-center gap-1">⭐ 4.9</span>
+                    <span className="flex items-center gap-1">👥 {vehicleDetails.capacity}</span>
+                    <span className="flex items-center gap-1">🧳 {vehicleDetails.luggage}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {selectedVehicle?.features.map((feature, idx) => (
-                      <span key={idx} className={`text-xs px-2 py-1 rounded-full ${selectedVehicle.bgColor} ${selectedVehicle.textColor}`}>
+                    {vehicleDetails.features.map((feature, idx) => (
+                      <span key={idx} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
                         {feature}
                       </span>
                     ))}
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-gray-900">${totalFare}</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalFare)}</p>
                   <p className="text-xs text-gray-500">total fare</p>
                 </div>
               </div>
@@ -154,7 +202,7 @@ const ConfirmRide = ({
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">PICKUP LOCATION</p>
-                    <p className="font-medium text-gray-900">{pickupLocation}</p>
+                    <p className="font-medium text-gray-900">{pickupLocation || 'Not selected'}</p>
                     <p className="text-xs text-gray-400 mt-1">Now • Today</p>
                   </div>
                 </div>
@@ -164,8 +212,8 @@ const ConfirmRide = ({
                   <div className="w-3 h-3 bg-red-500 rounded-full mt-1.5"></div>
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 mb-1">DESTINATION</p>
-                    <p className="font-medium text-gray-900">{destinationLocation}</p>
-                    <p className="text-xs text-gray-400 mt-1">Est. arrival: {estimatedTime || '15-20'} min</p>
+                    <p className="font-medium text-gray-900">{destinationLocation || 'Not selected'}</p>
+                    <p className="text-xs text-gray-400 mt-1">Est. arrival: {formatDuration(duration)}</p>
                   </div>
                 </div>
               </div>
@@ -174,12 +222,12 @@ const ConfirmRide = ({
               <div className="mt-4 flex gap-4 p-3 bg-gray-50 rounded-xl">
                 <div className="flex-1 text-center">
                   <p className="text-xs text-gray-500">Distance</p>
-                  <p className="font-semibold text-gray-900">{estimatedDistance || '8.5'} km</p>
+                  <p className="font-semibold text-gray-900">{formatDistance(distance)}</p>
                 </div>
                 <div className="w-px bg-gray-200"></div>
                 <div className="flex-1 text-center">
                   <p className="text-xs text-gray-500">Duration</p>
-                  <p className="font-semibold text-gray-900">{estimatedTime || '20'} min</p>
+                  <p className="font-semibold text-gray-900">{formatDuration(duration)}</p>
                 </div>
                 <div className="w-px bg-gray-200"></div>
                 <div className="flex-1 text-center">
@@ -189,37 +237,29 @@ const ConfirmRide = ({
               </div>
             </div>
 
-            {/* Fare Breakdown */}
+            {/* Fare Breakdown - Using backend data */}
             <div className="p-6 border-b border-gray-100">
               <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Fare Breakdown</h4>
               
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Base fare</span>
-                  <span className="text-gray-900">${baseFare}</span>
+                  <span className="text-gray-900 font-semibold">{formatCurrency(totalFare)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Distance charge</span>
-                  <span className="text-gray-900">${Math.floor(baseFare * 0.6)}</span>
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>Distance charge</span>
+                  <span>Included in base fare</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Time charge</span>
-                  <span className="text-gray-900">${Math.floor(baseFare * 0.3)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Tax (8%)</span>
-                  <span className="text-gray-900">${tax}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Platform fee</span>
-                  <span className="text-gray-900">${platformFee}</span>
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>Time charge</span>
+                  <span>Included in base fare</span>
                 </div>
                 <div className="border-t border-gray-200 pt-2 mt-2">
                   <div className="flex justify-between font-bold text-gray-900">
-                    <span>Total</span>
-                    <span className="text-xl">${totalFare}</span>
+                    <span>Total to pay</span>
+                    <span className="text-xl">{formatCurrency(totalFare)}</span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Including all taxes and fees</p>
+                  <p className="text-xs text-green-600 mt-1">✓ GST and all taxes included</p>
                 </div>
               </div>
             </div>
@@ -254,14 +294,6 @@ const ConfirmRide = ({
                   </div>
                 ))}
               </div>
-
-              {/* Add new card */}
-              <button className="w-full mt-3 flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-black py-2 rounded-xl border border-dashed border-gray-300 hover:border-black transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add new payment method
-              </button>
             </div>
 
             {/* Ride Options */}
@@ -278,19 +310,6 @@ const ConfirmRide = ({
                   <span className="text-sm text-gray-700">Send ride details via SMS</span>
                 </label>
               </div>
-            </div>
-
-            {/* Promo Code */}
-            <div className="p-6">
-              <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🎟️</span>
-                  <span className="text-sm font-medium text-gray-700">Apply promo code</span>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
             </div>
           </div>
 

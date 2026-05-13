@@ -59,63 +59,37 @@ module.exports.getFare = async (
 |--------------------------------------------------------------------------
 */
 
-module.exports.createRide = async (
-  req,
-  res
-) => {
-
+module.exports.createRide = async (req, res) => {
   try {
+    const { origin, destination, vehicleType } = req.body;
+    const user = req.user;
 
-    const {
-      origin,
-      destination
-    } = req.body
-
-    // USER FROM AUTH MIDDLEWARE
-    const user = req.user
-
-    if (!origin || !destination) {
-
+    if (!origin || !destination || !vehicleType) {
       return res.status(400).json({
-
         success: false,
-
-        message:
-          'Origin and destination required'
-      })
+        message: "All fields are required",
+      });
     }
 
-    const ride =
-      await rideService.createRide({
-
-        user: user._id,
-
-        origin,
-
-        destination
-      })
+    const ride = await rideService.createRide({
+      user: user._id,
+      origin,
+      destination,
+      vehicleType,
+    });
 
     return res.status(201).json({
-
       success: true,
-
-      message: 'Ride created successfully',
-
-      data: ride
-    })
-
+      message: "Ride created successfully",
+      data: ride,
+    });
   } catch (error) {
-
-    console.log(error)
-
     return res.status(500).json({
-
       success: false,
-
-      message: error.message
-    })
+      message: error.message,
+    });
   }
-}
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -173,56 +147,29 @@ module.exports.getRide = async (
 |--------------------------------------------------------------------------
 */
 
-module.exports.updateRideStatus = async (
-  req,
-  res
-) => {
-
+module.exports.updateRideStatus = async (req, res) => {
   try {
-
-    const {
-      rideId,
-      status
-    } = req.body
+    const { rideId } = req.params;
+    const { status } = req.body;
 
     if (!rideId || !status) {
-
       return res.status(400).json({
-
         success: false,
-
-        message:
-          'Ride ID and status required'
-      })
+        message: "Ride ID and status required",
+      });
     }
 
-    const ride =
-      await rideService.updateRideStatus(
-
-        rideId,
-
-        status
-      )
+    const ride = await rideService.updateRideStatus(rideId, status);
 
     return res.status(200).json({
-
       success: true,
-
-      message:
-        'Ride status updated',
-
-      data: ride
-    })
-
+      message: "Ride status updated",
+      data: ride,
+    });
   } catch (error) {
-
-    console.log(error)
-
     return res.status(500).json({
-
       success: false,
-
-      message: error.message
-    })
+      message: error.message,
+    });
   }
-}
+};
