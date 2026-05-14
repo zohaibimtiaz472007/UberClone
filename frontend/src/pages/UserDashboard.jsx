@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import VehicleSelectionPanel from "../components/VehicleSelectionPanel";
 import ConfirmRide from "../components/ConfirmRide";
 import WaitingForDriver from "../components/WaitingForDriver";
 import LookingForDriver from "../components/LookingForDriver";
+import { SocketContext } from "../context/SocketContext";
+import { userDataContext} from "../context/UserContext";
 import axios from "axios";
 import gsap from "gsap";
 
@@ -14,7 +16,7 @@ const formatDistance = (distance) => {
 
 const formatDuration = (duration) => {
   if (!duration) return "0 min";
-  const minutes = Math.round(duration);
+  const minutes = Math.round(duration); 
   if (minutes < 60) return `${minutes} min`;
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
@@ -59,6 +61,11 @@ const UserDashboard = () => {
   const [isLookingOpen, setIsLookingOpen] = useState(false);
   const [isWaitingOpen, setIsWaitingOpen] = useState(false);
   const [currentRideDetails, setCurrentRideDetails] = useState(null);
+
+  // contexts
+  const { socket } = useContext(SocketContext);
+  const { user } = useContext(userDataContext);
+  console.log("User data in dashboard:", user);
 
   // Fare data from backend
   const [fareData, setFareData] = useState(null);
@@ -129,6 +136,12 @@ const UserDashboard = () => {
       setIsFetchingFare(false);
     }
   };
+
+  useEffect(() => {
+    if (socket && user) {
+      socket.emit("join", { userType: "user", userId: user._id });
+    }
+  }, [socket, user]);
 
   // Auto fetch fare when both locations are selected
   useEffect(() => {

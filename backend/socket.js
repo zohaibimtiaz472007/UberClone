@@ -16,10 +16,11 @@ function initializeSocket(server) {
     console.log(`Socket connected: ${socket.id}`);
 
     socket.on('join', async (data) => {
-      const { userId, role } = data;
-      if(role === 'user') {
+      const { userId, userType } = data;
+      console.log(`User ${userId} of type ${userType} is joining with socket ID: ${socket.id}`);
+      if(userType === 'user') {
         await UserModel.findByIdAndUpdate(userId, { socketId: socket.id });
-      } else if(role === 'captain') {
+      } else if(userType === 'captain') {
         await CaptainModel.findByIdAndUpdate(userId, { socketId: socket.id });
       }
       socket.join(userId);

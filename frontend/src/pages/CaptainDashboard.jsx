@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Header from '../components/Header'
 import TabNavigation from '../components/TabNavigation'
 import RideRequestModal from '../components/RideRequestModal'
@@ -10,6 +10,11 @@ import EarningsTab from '../components/EarningsTab'
 import HistoryTab from '../components/HistoryTab'
 import ProfileTab from '../components/ProfileTab'
 import SidebarMenu from '../components/SidebarMenu'
+import { SocketContext } from '../context/SocketContext'
+import { CaptainDataContext } from '../context/CaptainContext'
+
+
+
 
 const CaptainDashboard = () => {
   const [isOnline, setIsOnline] = useState(true)
@@ -30,6 +35,20 @@ const CaptainDashboard = () => {
     rating: 4.92,
     acceptanceRate: 94
   })
+
+  // contexts
+  const { socket } = useContext(SocketContext)
+  const { captain } = useContext(CaptainDataContext)
+  console.log("CAPTAIN DATA IN DASHBOARD:", captain)
+
+  useEffect(() => {
+    if (captain) {
+      socket.emit("join", {
+        userId: captain._id,
+        userType: "captain"
+      });
+    }
+  }, [captain])
 
   // Simulate incoming ride requests
   useEffect(() => {
