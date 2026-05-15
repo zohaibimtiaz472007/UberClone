@@ -69,3 +69,30 @@ UberClone/
 │
 ├── README.md
 └── package.json
+
+
+
+# ⚠️ Copyright Notice
+
+This project is publicly available for portfolio and educational viewing purposes only.
+
+You are NOT allowed to:
+- Copy this project
+- Reuse the source code
+- Redistribute this project
+- Modify and publish this code
+- Use this project commercially
+
+Forking, reproducing, or using any part of this code without explicit permission from the developer is strictly prohibited.
+
+© 2026 Zohaib Imtiaz. All Rights Reserved.
+
+---
+
+## 👨‍💻 Developer
+
+Developed with ❤️ by **Zohaib Imtiaz**
+
+- GitHub: https://github.com/your-github-username
+
+---
