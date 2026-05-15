@@ -70,9 +70,9 @@ UberClone/
 ├── README.md
 └── package.json
 
+---
 
-
-# ⚠️ Copyright Notice
+## ⚠️ Copyright Notice
 
 This project is publicly available for portfolio and educational viewing purposes only.
 
